@@ -13,8 +13,9 @@ import java.util.List;
  * Created by Mohammed on 4/20/2017.
  */
 public class NormalBoardDomain {
+    static int num = 3;
     public static SADomain generateNewDomain() {
-        NormalBoard board = new NormalBoard(3);
+        NormalBoard board = new NormalBoard(num);
         SADomain domain = new SADomain();
         domain.addActionType(new NormalBoardAction());
         domain.setModel(new TicTacToeSampler());
@@ -38,9 +39,9 @@ public class NormalBoardDomain {
 
         @Override
         public List<Action> allApplicableActions(State state) {
-            List<Action> numbers = new ArrayList<>(9);
-            for (int i = 0; i <= 2; i++) {
-                for (int j = 0; j <= 2; j++) {
+            List<Action> numbers = new ArrayList<>(num * num);
+            for (int i = 0; i <= num - 1; i++) {
+                for (int j = 0; j <= num - 1; j++) {
                     Action action = new TicTacToeMove(i, j);
                     NormalBoard board = (NormalBoard) state.get("Board");
                     if (!board.access(i, j).isFinished())

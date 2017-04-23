@@ -1,11 +1,14 @@
 package GridWorldExamples;
 
 import burlap.behavior.policy.EpsilonGreedy;
+import burlap.behavior.policy.GreedyQPolicy;
 import burlap.behavior.policy.Policy;
 import burlap.behavior.singleagent.Episode;
 import burlap.behavior.singleagent.MDPSolver;
 import burlap.behavior.singleagent.auxiliary.EpisodeSequenceVisualizer;
 import burlap.behavior.singleagent.learning.LearningAgent;
+import burlap.behavior.singleagent.planning.stochastic.policyiteration.PolicyIteration;
+import burlap.behavior.singleagent.planning.stochastic.valueiteration.ValueIteration;
 import burlap.behavior.valuefunction.ConstantValueFunction;
 import burlap.behavior.valuefunction.QFunction;
 import burlap.behavior.valuefunction.QProvider;
@@ -153,7 +156,7 @@ public class QLTutorial extends MDPSolver implements LearningAgent, QProvider {
 
 	public static void main(String[] args) {
 
-		GridWorldDomain gwd = new GridWorldDomain(11, 11);
+		GridWorldDomain gwd = new GridWorldDomain(100, 100);
 		gwd.setMapToFourRooms();
 		gwd.setProbSucceedTransitionDynamics(0.8);
 		gwd.setTf(new GridWorldTerminalFunction(10, 10));
@@ -168,28 +171,64 @@ public class QLTutorial extends MDPSolver implements LearningAgent, QProvider {
 
 		//create Q-learning
 		QLTutorial agent = new QLTutorial(domain, 0.99, new SimpleHashableStateFactory(),
-				new ConstantValueFunction(), 0.1, 0.1);
+				new ConstantValueFunction(), 0.1, 0.5);
 
 		//run Q-learning and store results in a list
-		List<Episode> episodes = new ArrayList<Episode>(1000);
-		List<Double> rewards = new ArrayList<>(1000);
+		List<Double> rewards = new ArrayList<>(100000);
 		for(int i = 0; i < 1000; i++){
 			double rewardSum = 0;
-			episodes.add(agent.runLearningEpisode(env));
-			for(double reward: episodes.get(i).rewardSequence)
-				rewardSum += reward;
+			Episode epi = (agent.runLearningEpisode(env));
+			rewardSum = epi.discountedReturn(.99);
 			rewards.add(rewardSum);
 			env.resetEnvironment();
 		}
-        try (FileWriter writer = new FileWriter("C:\\Users\\Mohammed\\Documents\\Output")) {
+        try (FileWriter writer = new FileWriter("C:\\Users\\Mohammed\\JavaProjects\\MachineLearningProject4\\GridWorldQLRewardValsEpsil3.csv")) {
             for (int i = 0; i < rewards.size(); i++) {
                 writer.write("" + rewards.get(i) + ",");
             }
-        }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-
+        } catch (IOException e) {
+			e.printStackTrace();
+		}
+//
+//        ValueIteration valInt = new ValueIteration(domain, .5, new SimpleHashableStateFactory(), .1, 10);
+//		GreedyQPolicy policy = valInt.planFromState(env.currentObservation()); //get first state from environment
+//        env.resetEnvironment();
+//        List<Double> valIntRewards = new ArrayList<>();
+//        double discount = 1;
+//        while (!env.isInTerminalState()) {
+//            Action toPeform = policy.action(env.currentObservation());
+//            EnvironmentOutcome eo = env.executeAction(toPeform);
+//            valIntRewards.add(eo.r * discount);
+//            discount *= .5;
+//        }
+//        try (FileWriter writer = new FileWriter("C:\\Users\\Mohammed\\JavaProjects\\MachineLearningProject4\\GridWorldValIntRewardVals.csv")) {
+//            for (int i = 0; i < valIntRewards.size(); i++) {
+//                writer.write("" + valIntRewards.get(i) + ",");
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        env.resetEnvironment();;
+//        PolicyIteration policyIteration = new PolicyIteration(domain, .5, new SimpleHashableStateFactory(), .1, 10, 10);
+//        policy = policyIteration.planFromState(env.currentObservation());
+//        env.resetEnvironment();
+//        valIntRewards = new ArrayList<>();
+//        discount = 1;
+//		for (int i = 0; i < 100; i++) { //do value iteration 100 times
+//            while (!env.isInTerminalState()) {
+//                Action toPeform = policy.action(env.currentObservation());
+//                EnvironmentOutcome eo = env.executeAction(toPeform);
+//                valIntRewards.add(eo.r * discount);
+//                discount *= .5;
+//            }
+//        }
+//        try (FileWriter writer = new FileWriter("C:\\Users\\Mohammed\\JavaProjects\\MachineLearningProject4\\StandardizedGridWorldPolIntRewardVals.csv")) {
+//            for (int i = 0; i < valIntRewards.size(); i++) {
+//                writer.write("" + valIntRewards.get(i) + ",");
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 		//Visualizer v = GridWorldVisualizer.getVisualizer(gwd.getMap());
 		//new EpisodeSequenceVisualizer(v, domain, episodes);
 

@@ -56,6 +56,7 @@ public class Point extends Winnable {
 
     public Point copy() {
         Point p = new Point();
+        p.cells = new Winnable[1][1];
         p.isWon = this.isWon;
         p.winner = this.winner;
         return p;

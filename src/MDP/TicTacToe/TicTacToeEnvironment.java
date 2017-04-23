@@ -39,7 +39,7 @@ public class TicTacToeEnvironment implements Environment {
         else
             reward = -4; //our agent might be wasting time
         Random rand = new Random();
-        while(!newBoard.isFinished() && !newBoard.play(false, rand.nextInt(3), rand.nextInt(3)));
+        while(!newBoard.isFinished() && !newBoard.play(false, rand.nextInt(newBoard.getNum()), rand.nextInt(newBoard.getNum())));
         TicTacToeState newState = new TicTacToeState(newBoard);
         terminated = newBoard.isFinished();
         EnvironmentOutcome outcome = new EnvironmentOutcome(currentObservation(), action,  newState, reward, terminated);
@@ -59,6 +59,6 @@ public class TicTacToeEnvironment implements Environment {
 
     @Override
     public void resetEnvironment() {
-        this.board = (new NormalBoard(3));
+        this.board = (new NormalBoard(board.getNum()));
     }
 }
